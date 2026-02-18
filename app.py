@@ -167,7 +167,7 @@ translations = {
 
 # --- 3. SIDEBAR NAVIGATION ---
 with st.sidebar:
-    lang = st.selectbox("Language / భాష / భాష", ["English", "Hindi", "Telugu"])
+    lang = st.selectbox("Language / भाषा / భాష", ["English", "Hindi", "Telugu"])
     t = translations[lang]
     st.title("Menu")
     choice = st.radio("Navigate to:", [t["nav_dash"], t["nav_book"], t["nav_trans"], t["nav_tour"], t["nav_rev"], t["nav_admin"]])
