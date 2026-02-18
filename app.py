@@ -203,14 +203,15 @@ if choice == t["nav_dash"]:
 
         try:
             geolocator = Nominatim(user_agent="bharat_yatra_app")
-            loc = geolocator.reverse((lat, lon), language="en", timeout=10)
+            loc = geolocator.reverse((lat, lon), language="en", timeout=20)
 
             if loc and "address" in loc.raw:
                 address = loc.raw["address"]
                 city = address.get("city") or address.get("town") or address.get("state")
 
         except:
-            st.warning("Could not detect city. Using Hyderabad.")
+            pass
+
 
     st.success(f"📍 You are in {city}")
     st.divider()
@@ -304,15 +305,15 @@ if choice == t["nav_book"]:
                 col1, col2, col3 = st.columns(3)
 
                 with col1:
-                    st.image("https://logos-world.net/wp-content/uploads/2021/08/MakeMyTrip-Logo.png", width=120)
+                    st.image("assets/makemytrip.png", width=120)
                     st.link_button("MakeMyTrip", makemytrip)
 
                 with col2:
-                    st.image("https://upload.wikimedia.org/wikipedia/commons/8/8c/Goibibo_logo.png", width=120)
+                    st.image("assets/goibibo.png", width=120)
                     st.link_button("Goibibo", goibibo)
 
                 with col3:
-                    st.image("https://upload.wikimedia.org/wikipedia/commons/d/d1/IndiGo_Logo.svg", width=120)
+                    st.image("assets/indigo.png", width=120)
                     st.link_button("IndiGo", indigo)
             else:
                 st.warning("Enter origin and destination.")
@@ -336,15 +337,15 @@ if choice == t["nav_book"]:
                 col1, col2, col3 = st.columns(3)
 
                 with col1:
-                    st.image("https://logos-world.net/wp-content/uploads/2021/08/MakeMyTrip-Logo.png", width=120)
+                    st.image("assets/makemytrip.png", width=120)
                     st.link_button("MakeMyTrip", makemytrip)
 
                 with col2:
-                    st.image("https://upload.wikimedia.org/wikipedia/commons/8/8c/Goibibo_logo.png", width=120)
+                    st.image("assets/goibibo.png", width=120)
                     st.link_button("Goibibo", goibibo)
 
                 with col3:
-                    st.image("https://upload.wikimedia.org/wikipedia/commons/b/be/Booking.com_logo.svg", width=120)
+                    st.image("assets/booking.png", width=120)
                     st.link_button("Booking.com", booking)
             else:
                 st.warning("Enter a city.")
