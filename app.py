@@ -95,6 +95,17 @@ def init_db():
     password TEXT
     )
     """ )
+    cursor.execute("""
+CREATE TABLE IF NOT EXISTS payments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_name TEXT,
+    amount INTEGER,
+    method TEXT,
+    transaction_id TEXT,
+    status TEXT,
+    date TEXT
+)
+""")
 
     
     # SELF-REPAIR: Automatically add 'link' column if it's missing from an old database
@@ -352,7 +363,7 @@ if choice == t["nav_book"]:
 
 
 # --- 6. TRANSPORT (Fixed Blank Screen & Rapido Link) ---
-elif choice == t["nav_trans"]:
+if choice == t["nav_trans"]:
     st.header(t["nav_trans"])
     st.write("Book a quick ride to your destination.")
     v_type = st.selectbox("Vehicle", ["Bike", "Auto", "Cab"])
@@ -441,58 +452,70 @@ elif choice == t["nav_food"]:
 
 
 # --- PAYMENT GATEWAY ---
-elif choice == t["nav_pay"]:
+if choice == t["nav_pay"]:
+    import random
+    import string
+    import datetime
+    import time
     st.header("💳 Secure UPI Payment")
 
-    st.markdown("""
-    <div style="background:#111827;
-                padding:20px;
-                border-radius:15px;
-                border:1px solid #1f2937;">
-    """, unsafe_allow_html=True)
-
-    col1, col2 = st.columns([1,2])
-
-    with col1:
-        st.image("assets/upi.png", width=120)
-
-    with col2:
-        st.markdown("### Bharat Yatra Payments")
-        st.write("Pay securely using UPI")
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.divider()
-
-    upi_id = st.text_input("Enter UPI ID (example@upi)")
     amount = st.number_input("Enter Amount (₹)", min_value=1)
 
-    st.subheader("Select UPI App")
-
-    app = st.radio(
-        "",
-        ["Google Pay", "PhonePe", "Paytm"],
-        horizontal=True
+    method = st.selectbox(
+        "Select Payment Method",
+        ["UPI - Google Pay", "UPI - PhonePe", "UPI - Paytm"]
     )
-
-    st.divider()
 
     if st.button("🔐 Pay Now", use_container_width=True):
 
-        if upi_id and amount > 0:
+        if amount > 0:
 
             with st.spinner("Processing Payment..."):
-                import time
                 time.sleep(2)
 
-            st.success(f"₹{amount} paid successfully via {app} ✅")
+            txn_id = "BYS" + ''.join(random.choices(string.digits, k=8))
+            date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+            conn.execute(
+                "INSERT INTO payments (user_name, amount, method, transaction_id, status, date) VALUES (?,?,?,?,?,?)",
+                (
+                    st.session_state.user_name,
+                    amount,
+                    method,
+                    txn_id,
+                    "Success",
+                    date
+                )
+            )
+            conn.commit()
+
+            st.success("Payment Successful ✅")
             st.balloons()
 
+            st.markdown(f"""
+            ### 🧾 Payment Receipt
+            - Transaction ID: {txn_id}
+            - Amount: ₹{amount}
+            - Method: {method}
+            - Date: {date}
+            """)
+
         else:
-            st.warning("Please enter valid details.")
+            st.warning("Enter valid amount.")
 
+        st.divider()
+        st.subheader("📜 Payment History")
 
+        history = pd.read_sql(
+            "SELECT amount, method, transaction_id, date FROM payments WHERE user_name=?",
+            conn,
+            params=(st.session_state.user_name,)
+        )
+
+        if not history.empty:
+            st.dataframe(history)
+        else:
+            st.info("No transactions yet.")
 
 # --- 8. REVIEWS (Fixed Blank Screen) ---
 elif choice == t["nav_rev"]:
