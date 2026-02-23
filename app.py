@@ -156,9 +156,9 @@ if not st.session_state.logged_in:
 
 # --- 2. MULTILINGUAL SETUP ---
 translations = {
-    "English": {"nav_dash": "🏠 Dashboard", "nav_book": "✈️ Bookings", "nav_trans": "🚗 Transport", "nav_tour": "🗺️ Tourist Places", "nav_rev": "💬 Reviews", "nav_admin": "⚙️ Admin"},
-    "Hindi": {"nav_dash": "🏠 डैशबोर्ड", "nav_book": "✈️ बुकिंग", "nav_trans": "🚗 परिवहन", "nav_tour": "🗺️ पर्यटन स्थल", "nav_rev": "💬 समीक्षा", "nav_admin": "⚙️ एडमिन"},
-    "Telugu": {"nav_dash": "🏠 డాష్‌బోర్డ్", "nav_book": "✈️ బుకింగ్స్", "nav_trans": "🚗 రవాణా", "nav_tour": "🗺️ పర్యాటక ప్రదేశాలు", "nav_rev": "💬 సమీక్షలు", "nav_admin": "⚙️ అడ్మిన్"}
+    "English": {"nav_dash": "🏠 Dashboard", "nav_book": "✈️ Bookings", "nav_trans": "🚗 Transport", "nav_tour": "🗺️ Tourist Places","nav_food": "🍽️ Food Booking", "nav_pay": "💳 Payment", "nav_rev": "💬 Reviews", "nav_admin": "⚙️ Admin"},
+    "Hindi": {"nav_dash": "🏠 डैशबोर्ड", "nav_book": "✈️ बुकिंग", "nav_trans": "🚗 परिवहन", "nav_tour": "🗺️ पर्यटन स्थल", "nav_food": "🍽️ खाना बुकिंग", "nav_pay": "💳 भुगतान", "nav_rev": "💬 समीक्षा", "nav_admin": "⚙️ एडमिन"},
+    "Telugu": {"nav_dash": "🏠 డాష్‌బోర్డ్", "nav_book": "✈️ బుకింగ్స్", "nav_trans": "🚗 రవాణా", "nav_tour": "🗺️ పర్యాటక ప్రదేశాలు", 	"nav_food":"🍽️ ఆహార బుకింగ్", 	"nav_pay":"💳 పేమెంట్", "nav_rev": 	"💬 సమీక్షలు", 	"nav_admin":"⚙️ అడ్మిన్"}
 }
 
 
@@ -170,7 +170,7 @@ with st.sidebar:
     lang = st.selectbox("Language / भाषा / భాష", ["English", "Hindi", "Telugu"])
     t = translations[lang]
     st.title("Menu")
-    choice = st.radio("Navigate to:", [t["nav_dash"], t["nav_book"], t["nav_trans"], t["nav_tour"], t["nav_rev"], t["nav_admin"]])
+    choice = st.radio("Navigate to:", [t["nav_dash"], t["nav_book"], t["nav_trans"], t["nav_tour"], t["nav_food"], t["nav_pay"], t["nav_rev"], t["nav_admin"]])
     st.sidebar.success(f"Welcome {st.session_state.user_name}")
 
     if st.sidebar.button("Logout"):
@@ -413,6 +413,84 @@ elif choice == t["nav_tour"]:
 
     else:
         st.warning(f"No places found for {search_city}.")
+# --- FOOD BOOKING ---
+elif choice == t["nav_food"]:
+    st.header(t["nav_food"])
+
+    city = st.text_input("Enter City for Food Delivery")
+
+    if st.button("Search Restaurants"):
+        if city:
+            import urllib.parse
+            city_enc = urllib.parse.quote(city)
+
+            zomato = f"https://www.zomato.com/{city_enc}"
+            swiggy = f"https://www.swiggy.com/city/{city_enc}"
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.image("assets/zomato.png", width=120)
+                st.link_button("Order on Zomato", zomato)
+
+            with col2:
+                st.image("assets/swiggy.png", width=120)
+                st.link_button("Order on Swiggy", swiggy)
+        else:
+            st.warning("Please enter a city.")
+
+
+# --- PAYMENT GATEWAY ---
+elif choice == t["nav_pay"]:
+    st.header("💳 Secure UPI Payment")
+
+    st.markdown("""
+    <div style="background:#111827;
+                padding:20px;
+                border-radius:15px;
+                border:1px solid #1f2937;">
+    """, unsafe_allow_html=True)
+
+    col1, col2 = st.columns([1,2])
+
+    with col1:
+        st.image("assets/upi.png", width=120)
+
+    with col2:
+        st.markdown("### Bharat Yatra Payments")
+        st.write("Pay securely using UPI")
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    st.divider()
+
+    upi_id = st.text_input("Enter UPI ID (example@upi)")
+    amount = st.number_input("Enter Amount (₹)", min_value=1)
+
+    st.subheader("Select UPI App")
+
+    app = st.radio(
+        "",
+        ["Google Pay", "PhonePe", "Paytm"],
+        horizontal=True
+    )
+
+    st.divider()
+
+    if st.button("🔐 Pay Now", use_container_width=True):
+
+        if upi_id and amount > 0:
+
+            with st.spinner("Processing Payment..."):
+                import time
+                time.sleep(2)
+
+            st.success(f"₹{amount} paid successfully via {app} ✅")
+
+            st.balloons()
+
+        else:
+            st.warning("Please enter valid details.")
 
 
 
