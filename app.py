@@ -578,7 +578,7 @@ def animated_response(text):
         message_placeholder.markdown(full_text)
         time.sleep(0.01)
 
-if choice == "🤖 Chat Assistant":
+if choice == t["nav_tara"]:
     st.markdown("""
     <h2 style="display:flex;align-items:center;">
         ⭐ Tara – Your Travel Companion
