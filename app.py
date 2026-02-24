@@ -167,9 +167,9 @@ if not st.session_state.logged_in:
 
 # --- 2. MULTILINGUAL SETUP ---
 translations = {
-    "English": {"nav_dash": "🏠 Dashboard", "nav_book": "✈️ Bookings", "nav_trans": "🚗 Transport", "nav_tour": "🗺️ Tourist Places","nav_food": "🍽️ Food Booking", "nav_pay": "💳 Payment", "nav_rev": "💬 Reviews", "nav_admin": "⚙️ Admin"},
-    "Hindi": {"nav_dash": "🏠 डैशबोर्ड", "nav_book": "✈️ बुकिंग", "nav_trans": "🚗 परिवहन", "nav_tour": "🗺️ पर्यटन स्थल", "nav_food": "🍽️ खाना बुकिंग", "nav_pay": "💳 भुगतान", "nav_rev": "💬 समीक्षा", "nav_admin": "⚙️ एडमिन"},
-    "Telugu": {"nav_dash": "🏠 డాష్‌బోర్డ్", "nav_book": "✈️ బుకింగ్స్", "nav_trans": "🚗 రవాణా", "nav_tour": "🗺️ పర్యాటక ప్రదేశాలు", 	"nav_food":"🍽️ ఆహార బుకింగ్", 	"nav_pay":"💳 పేమెంట్", "nav_rev": 	"💬 సమీక్షలు", 	"nav_admin":"⚙️ అడ్మిన్"}
+    "English": {"nav_dash": "🏠 Dashboard", "nav_book": "✈️ Bookings", "nav_trans": "🚗 Transport", "nav_tour": "🗺️ Tourist Places","nav_food": "🍽️ Food Booking", "nav_pay": "💳 Payment", "nav_rev": "💬 Reviews", "nav_tara": "🎯 Tara", "nav_admin": "⚙️ Admin"},
+    "Hindi": {"nav_dash": "🏠 डैशबोर्ड", "nav_book": "✈️ बुकिंग", "nav_trans": "🚗 परिवहन", "nav_tour": "🗺️ पर्यटन स्थल", "nav_food": "🍽️ खाना बुकिंग", "nav_pay": "💳 भुगतान", "nav_rev": "💬 समीक्षा", "nav_tara": "🎯 तारा", "nav_admin": "⚙️ एडमिन"},
+    "Telugu": {"nav_dash": "🏠 డాష్‌బోర్డ్", "nav_book": "✈️ బుకింగ్స్", "nav_trans": "🚗 రవాణా", "nav_tour": "🗺️ పర్యాటక ప్రదేశాలు", 	"nav_food":"🍽️ ఆహార బుకింగ్", 	"nav_pay":"💳 పేమెంట్", "nav_rev": 	"💬 సమీక్షలు","nav_tara":"🎯 తార","nav_admin":"⚙️ అడ్మిన్"}
 }
 
 
@@ -181,7 +181,7 @@ with st.sidebar:
     lang = st.selectbox("Language / भाषा / భాష", ["English", "Hindi", "Telugu"])
     t = translations[lang]
     st.title("Menu")
-    choice = st.radio("Navigate to:", [t["nav_dash"], t["nav_book"], t["nav_trans"], t["nav_tour"], t["nav_food"], t["nav_pay"], t["nav_rev"], t["nav_admin"]])
+    choice = st.radio("Navigate to:", [t["nav_dash"], t["nav_book"], t["nav_trans"], t["nav_tour"], t["nav_food"], t["nav_pay"], t["nav_rev"],t["nav_tara"], t["nav_admin"]])
     st.sidebar.success(f"Welcome {st.session_state.user_name}")
 
     if st.sidebar.button("Logout"):
@@ -292,7 +292,7 @@ if choice == t["nav_dash"]:
     st.info("Major Project • Streamlit • SQLite • Python")
 
 # --- 5. BOOKINGS (Fixed Hotels & DeltaGenerator Error) ---
-if choice == t["nav_book"]:
+elif choice == t["nav_book"]:
     st.header(t["nav_book"])
     tab1, tab2 = st.tabs(["✈️ Flights", "🏨 Hotels"])
     with tab1:
@@ -363,7 +363,7 @@ if choice == t["nav_book"]:
 
 
 # --- 6. TRANSPORT (Fixed Blank Screen & Rapido Link) ---
-if choice == t["nav_trans"]:
+elif choice == t["nav_trans"]:
     st.header(t["nav_trans"])
     st.write("Book a quick ride to your destination.")
     v_type = st.selectbox("Vehicle", ["Bike", "Auto", "Cab"])
@@ -452,7 +452,7 @@ elif choice == t["nav_food"]:
 
 
 # --- PAYMENT GATEWAY ---
-if choice == t["nav_pay"]:
+elif choice == t["nav_pay"]:
     import random
     import string
     import datetime
@@ -518,7 +518,7 @@ if choice == t["nav_pay"]:
             st.info("No transactions yet.")
 
 # --- 8. REVIEWS (Fixed Blank Screen) ---
-if choice == t["nav_rev"]:
+elif choice == t["nav_rev"]:
     st.header(t["nav_rev"])
     with st.form("new_review"):
         r_city = st.text_input("City").capitalize()
@@ -539,7 +539,7 @@ if choice == t["nav_rev"]:
             st.info(r['comment'])
 
 # --- 8. ADMIN PANEL (Access: admin123) ---
-if choice == t["nav_admin"]:
+elif choice == t["nav_admin"]:
     st.header("⚙️ Admin Dashboard")
     pw = st.text_input("Access Key", type="password")
     if pw == "admin123":
