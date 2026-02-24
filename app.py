@@ -518,7 +518,7 @@ if choice == t["nav_pay"]:
             st.info("No transactions yet.")
 
 # --- 8. REVIEWS (Fixed Blank Screen) ---
-elif choice == t["nav_rev"]:
+if choice == t["nav_rev"]:
     st.header(t["nav_rev"])
     with st.form("new_review"):
         r_city = st.text_input("City").capitalize()
@@ -539,7 +539,7 @@ elif choice == t["nav_rev"]:
             st.info(r['comment'])
 
 # --- 8. ADMIN PANEL (Access: admin123) ---
-elif choice == t["nav_admin"]:
+if choice == t["nav_admin"]:
     st.header("⚙️ Admin Dashboard")
     pw = st.text_input("Access Key", type="password")
     if pw == "admin123":
@@ -568,5 +568,130 @@ elif choice == t["nav_admin"]:
 
     else:
         st.error("Invalid Access Key!")
+import time
+
+def animated_response(text):
+    message_placeholder = st.empty()
+    full_text = ""
+    for char in text:
+        full_text += char
+        message_placeholder.markdown(full_text)
+        time.sleep(0.01)
+
+if choice == "🤖 Chat Assistant":
+    st.markdown("""
+    <h2 style="display:flex;align-items:center;">
+        ⭐ Tara – Your Travel Companion
+    </h2>
+    """, unsafe_allow_html=True)
+
+    st.caption("Your smart guide for exploring India 🇮🇳")
+
+
+    if "tara_initialized" not in st.session_state:
+        st.session_state.messages = []
+        if "tara_initialized" not in st.session_state:
+            st.session_state.messages = []
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": "Hello 👋 I’m Tara, your smart travel companion! Ask me about tourist places, hotels, flights, or authentic food."
+            })
+        st.session_state.tara_initialized = True
+        
+
+    user_input = st.chat_input("Type your message...")
+
+    if user_input:
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        msg = user_input.lower()
+        response = ""
+
+        # Detect tourist places
+        cities = pd.read_sql("SELECT DISTINCT city FROM tourist_places", conn)["city"].tolist()
+
+        detected_city = None
+        for c in cities:
+            if c.lower() in msg:
+                detected_city = c
+                break
+
+        # TOURIST PLACES
+        if "tourist" in msg or "places" in msg or "explore" in msg:
+            if detected_city:
+                df = pd.read_sql(
+                    "SELECT place FROM tourist_places WHERE city=?",
+                    conn,
+                    params=(detected_city,)
+                )
+                places = ", ".join(df["place"].tolist())
+                response = f"🗺 Tourist places in {detected_city}: {places}"
+            else:
+                response = "Please mention a city to explore."
+
+        # HOTELS
+        elif "hotel" in msg:
+            if detected_city:
+                import urllib.parse
+                city_enc = urllib.parse.quote(detected_city)
+                booking = f"https://www.booking.com/searchresults.html?ss={city_enc}"
+                response = f"🏨 Hotels in {detected_city}:\n\n[Book on Booking.com]({booking})"
+            else:
+                response = "Please mention a city for hotels."
+
+        # FLIGHTS
+        elif "flight" in msg:
+            words = msg.split()
+            if "from" in words and "to" in words:
+                try:
+                    org = words[words.index("from")+1]
+                    dst = words[words.index("to")+1]
+
+                    import urllib.parse
+                    org_enc = urllib.parse.quote(org)
+                    dst_enc = urllib.parse.quote(dst)
+
+                    makemytrip = f"https://www.makemytrip.com/flight/search?itinerary={org_enc}-{dst_enc}"
+
+                    response = f"✈ Flights from {org.title()} to {dst.title()}:\n\n[Search on MakeMyTrip]({makemytrip})"
+                except:
+                    response = "Please use format: Flights from CityA to CityB"
+            else:
+                response = "Please use format: Flights from CityA to CityB"
+
+        # FOOD
+        elif "food" in msg or "famous food" in msg:
+            food_df = pd.read_sql(
+                "SELECT food_name FROM city_foods WHERE city=?",
+                conn,
+                params=(detected_city,)
+            )
+            if not food_df.empty:
+                foods = ", ".join(food_df["food_name"].tolist())
+                response = f"🍛 Authentic foods in {detected_city}: {foods}"
+            else:
+                response = "No food data available for this city."
+
+        # GPS BASED SUGGESTION
+        elif "near me" in msg or "here" in msg:
+            gps_city = city  # from your dashboard GPS logic
+            df = pd.read_sql(
+                "SELECT place FROM tourist_places WHERE city COLLATE NOCASE = ?",
+                conn,
+                params=(gps_city,)
+            )
+            if not df.empty:
+                places = ", ".join(df["place"].tolist())
+                response = f"📍 You are in {gps_city}. You can explore: {places}"
+            else:
+                response = "No data found for your current location."
+
+        else:
+            response = "I can help with tourist places, hotels, flights, or food. Try asking about a city!"
+
+        st.session_state.messages.append({"role": "assistant", "content": response})
+
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
 conn.close()
